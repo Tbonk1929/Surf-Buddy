@@ -1,0 +1,314 @@
+Fundamentals of surfing forecasts
+Choose where to surf by yourself!
+
+Planning a surfing session
+To see if you can have a safe and a productive surf session in
+a specific spot on a specific date, check this)
+> Swell directio"
+> Swell height and perio'
+> Tide (low/medium/high3
+> Wind (direction & speed3
+> Working wind and swell for this specific spo+
+> Type of break: beach break, point break, reef or river mout
+> Tips from locals
+
+Waves are more than just swell!
+
+Wind
+
+A wave is formed by,
+
+=5 SwellD
++5 Tid-
+
+Wave
+Swell
+
+&5 WindD
+5 Type of break
+
+
+
+The break doesn't change, it just depends
+
+Tides
+
+on the spot, but other parameters can be
+
+Break
+
+forecasted or calculated.
+
+When all factors are present, a so-called groundswell forms. That's a row of waves with a certain height and
+period, which appears after storm in the ocean. It often brings clean, well formed surf.
+
+Windswell
+
+When there’s no swell, so called windswell is formed. It’s typical for bays
+and gulfs.
+
+
+
+It's created by less powerful wind and storms that occur closer to the
+shore. In this case, waves don’t have enough distance to form clean
+patterns, so the surf is often broken up.
+
+
+
+For educational purposes, let’s learn to read a surf forecast for a spot
+that has swell, tides and wind.
+
+Wind forecast map
+
+Reading swell forecast: direction
+
+AC Swell direction shows you where the swell is coming FRO/
+
+)C Some spots are very sensitive to swell direction, for example
+
+
+located in a bay: if the direction is not right, the waves simply won't reach the shoreC
+
+
+
+the shape of the seabed could be such that if the swell comes from on the right, then the
+waves will be long and even, but if it is on the left, then the surf length will be short. 
+
+
+
+3. The majority of spots are not that sensitive to small variations, and
+many generally work in all directions of the swell.
+
+
+Reading swell forecast: height and period (1)
+
+Let’s say, the swell direction is good for this spot.
+
+It's time to determine wave size. 
+
+
+It’s based on
+ swell height (measured in meters/ft%
+ wave period (measured in seconds)
+
+
+The general rule is: The higher the swell, the more powerful the waves
+will be. Wave period (the time of the complete wave cycle) will
+determine the size of the waves.
+
+Reading swell forecast: height and period (2)
+
+To roughly estimate actual wave height, use this rule:
+
+Swell period
+
+Wave height
+
+< 11 s
+
+wave height < swell height
+
+11-12 s
+
+wave height = swell height
+
+Example:
+
+
+
+If the swell is 1.7 meters high, and the
+period is 12 seconds, the wave will
+probably be approximately 1.7 meters
+
+14-19 s
+
+wave height > swell height
+
+> 20s
+
+wave height = 2 x swell height
+
+or a little more.
+
+Wind for surfers (1)
+
+Best wind = no wind! (glassy conditions)
+
+
+If there’s wind, look at speed and direction
+
+
+
+
+
+
+Wind direction
+
+Influence on waves
+
+Offshore
+
+good wall of the wave
+
+Onshore
+
+more quickly closing out
+
+Crossshore
+
+possible current
+
+Wind for surfers (2)
+OFFSHORE
+
+CROSSSHORE
+
+ONSHORE
+
+Wind is coming from the land, pushing
+
+Wind is coming from the sides of the
+
+Wind is coming from the ocean. It is
+
+against the face of the wave, creating neat
+
+break. Depending on the strength of the
+
+the worst type of wind, since the wind
+
+and tidy conditions. The offshore wind
+
+wind and the type of break, the wave can
+
+is pushing the wave from the back and
+
+helps waves get a clear shape. It’s similar
+
+be still surfable, however it’s shape tends
+
+messing it up. If the wind is light, the
+
+to “no wind” conditions.
+
+to get messed up. It can create or affect
+
+wave can still be surfable.
+
+the current.
+
+Tides for surfers
+
+Determine the best time of day to ride
+) Most surf spots are sensitive to changes in water levels. See spot info for the
+working tide level. even if a spot works on all tides, the quality of waves can
+change with the water level.7
+
+) Tides don't need to be predicted, they are determined by the moon and the
+sun and can be calculate3
+
+) General rule: waves on a low tide are sharper than on a high tid*
+) Depending on tides, the currents on a spot can change.
+
+How to choose a spot: when the spot is working
+
+Check out the SPOT INFO section or other resources
+to learn about a certain spot.
+
+
+Crucial parameters are
+ Working swell direction*
+ Type of brea9
+ Working tide*
+ Working wind directions
+
+How to choose a spot: types of break (1)
+
+On point breaks:
+
+the waves rise due to the part of the land that protrudes into the ocean. It can
+be an island, a small peninsula, a cape, a ridge of stones.
+
+
+
+On reef break:
+
+Waves rise up colliding with the reef or coral shelf. Due to the fact that the reef
+remains unchanged, waves like that have more constant shape and size.
+
+
+
+On beach break:
+
+Wave are formed due to the alluvium of the sandy bottom which generate
+“sand banks”. Unfortunately, beach breaks have much more instability and
+mobility than point and reef waves, as the shape, length and peak of the wave
+is constantly changing.
+
+How to choose a spot: types of break (2)
+
+Point break
+
+Reef break
+
+Beach break
+
+Sometimes you can also check the type of break using the sattelite map view.
+
+How to choose a spot: reviews from locals
+Why are they worth reading*
+2/ They come from people with first-hand knowledge of the spot/
+/ There could be local tips like optimal swell energy for this spot or
+wetsuit thickness recommendation@
+"/ There could be information on the current situation on the spot
+(restrictions, trash on the shore and etc.)
+
+
+
+Thousands of surf spots have reviews from other
+surfers in Windy.app.
+
+Bonus: how to forecast the swell 
+
+(as big wave surfers do)
+
+The strongest storms are assosiated with cyclones
+(low pressure areas, the center is marked by the letter
+“L” ). Winds blow along isobars (lines around the
+letter “L”). The closer the isobars are to each other,
+the stronger the winds.
+
+
+
+Swell direction
+
+These storms produce swell.
+
+
+If you know where the cyclone is, you can predict
+where the swell will be in advance.
+
+Wind direction
+
+Bonus: swell propagation on the map
+T+00h
+
+T+12h
+
+T+24h
+
+T+36h
+
+Recap
+Always check
+ Spot working condition
+ Swell directio
+ Swell height and perio
+ Wind speed and directio
+ Tides
+
+-> Go surfing :)
+Now you know how to check the surf forecast by yourself.
+Good luck!
+
+

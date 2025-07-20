@@ -1,0 +1,21 @@
+{
+  "name": "Jersey Shore Surf Buddy",
+  "short_name": "Surf Buddy",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f0f9ff",
+  "theme_color": "#0ea5e9",
+  "description": "Your go-to for quick surf checks and local insights.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 

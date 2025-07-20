@@ -1,0 +1,27 @@
+{
+  "name": "surf-buddy",
+  "version": "1.0.0",
+  "description": "Jersey Shore Surf Buddy - static site with Node.js dev server",
+  "main": "index.js",
+  "scripts": {
+    "dev": "serve .",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
+    "serve": "^14.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tbonk1929/Surf-Buddy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tbonk1929/Surf-Buddy/issues"
+  },
+  "homepage": "https://github.com/Tbonk1929/Surf-Buddy#readme"
+}

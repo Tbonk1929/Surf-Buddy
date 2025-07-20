@@ -10,6 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -216,18 +219,44 @@
             margin-bottom: 0;
         }
     </style>
+    <link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
 </head>
 <body>
-    <div class="container main-content-area" id="mainContentArea">
+    <!-- Hamburger Menu Button -->
+    <button id="menuToggleButton" aria-label="Open menu" class="fixed top-4 left-4 z-50 bg-white shadow-lg rounded-full flex items-center justify-center w-11 h-11 focus:outline-none focus:ring-2 focus:ring-blue-400" style="box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-30 z-30 transition-opacity duration-300 ease-in-out opacity-0 pointer-events-none"></div>
+
+    <!-- Sidebar Menu -->
+    <div id="sidebarMenu" class="fixed top-0 left-0 h-full w-64 bg-white shadow-2xl z-40 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col pt-0" style="box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
+        <nav class="flex flex-col gap-4 px-8 mt-20">
+            <button class="text-lg font-semibold text-blue-600 hover:bg-blue-50 rounded-lg py-2 px-4 text-left transition">Surf Forecast</button>
+            <button class="text-lg font-semibold text-blue-600 hover:bg-blue-50 rounded-lg py-2 px-4 text-left transition">Interactive Map</button>
+            <button class="text-lg font-semibold text-blue-600 hover:bg-blue-50 rounded-lg py-2 px-4 text-left transition">My Spots</button>
+            <button class="text-lg font-semibold text-blue-600 hover:bg-blue-50 rounded-lg py-2 px-4 text-left transition">My Quiver</button>
+            <button class="text-lg font-semibold text-blue-600 hover:bg-blue-50 rounded-lg py-2 px-4 text-left transition">Journal</button>
+        </nav>
+        <div class="mt-auto px-8 pb-8 flex flex-col gap-2">
+            <button id="myAccountButton" class="w-full bg-gray-200 hover:bg-gray-300 text-blue-700 font-bold py-2 px-4 rounded-lg shadow transition">My Account</button>
+            <button id="loginButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow transition">Log In</button>
+        </div>
+    </div>
+    <div class="container main-content-area" id="mainContentArea" aria-label="Main content area">
         <h1 class="text-4xl font-extrabold text-gray-800 mb-6">Jersey Shore Surf Buddy</h1>
         <p class="text-gray-600 mb-8 text-lg">Your go-to for quick surf checks and local insights.</p>
 
         <div class="mb-4">
-            <select id="njSpotsDropdown" class="w-full">
+            <select id="njSpotsDropdown" class="w-full" aria-label="Select a New Jersey Surf Spot" tabindex="0">
                 <option value="">Select a New Jersey Surf Spot</option>
             </select>
         </div>
-        <button id="getForecastForSelectedSpotButton">Get Forecast</button>
+        <button id="getForecastForSelectedSpotButton" aria-label="Get Forecast" tabindex="0">Get Forecast</button>
 
         <div id="loading-indicator">Paddling out for data...</div>
 
@@ -235,8 +264,19 @@
             <div id="feedback-container" class="hidden">
                 <p class="font-semibold text-center mb-2">Did you surf here today?</p>
                 <div id="feedback-initial" class="flex justify-center gap-4">
-                    <button id="feedback-yes" class="bg-green-500 hover:bg-green-600">Yes</button>
-                    <button id="feedback-no" class="bg-red-500 hover:bg-red-600">No</button>
+                    <button id="feedback-yes" class="bg-green-500 hover:bg-green-600" aria-label="Yes, I surfed here today" tabindex="0">Yes</button>
+                    <button id="feedback-no" class="bg-red-500 hover:bg-red-600" aria-label="No, I did not surf here today" tabindex="0">No</button>
+                </div>
+                <div id="feedback-board" class="hidden flex flex-col items-center gap-2 mt-4">
+                    <label for="board-select" class="font-semibold">Which board did you use?</label>
+                    <select id="board-select" class="border rounded-lg px-3 py-2">
+                        <option value="">Select a board</option>
+                        <option value="Beacon (9'6)">Beacon (9'6)</option>
+                        <option value="Seaside & Beyond (7')">Seaside & Beyond (7')</option>
+                        <option value="Spitfire (6'4)">Spitfire (6'4)</option>
+                        <option value="Puddle Jumper (5'8)">Puddle Jumper (5'8)</option>
+                    </select>
+                    <button id="board-select-next" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded-lg shadow transition">Next</button>
                 </div>
                 <div id="feedback-rating" class="hidden">
                     <p class="font-semibold text-center mb-2">How was it? Rate your session:</p>
@@ -248,7 +288,12 @@
                         <span class="star" data-value="5">★</span>
                     </div>
                 </div>
-                <p id="feedback-thanks" class="hidden text-center font-bold text-green-600">Thanks for your feedback!</p>
+                <div id="feedback-details" class="hidden flex flex-col items-center gap-2 mt-4">
+                    <label for="feedback-details-input" class="font-semibold text-center">Any specific details you want to share? <span class="font-normal">This will help curate your forecasts for future sessions.</span></label>
+                    <textarea id="feedback-details-input" rows="3" class="w-full max-w-md px-4 py-2 rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Type your feedback..."></textarea>
+                    <button id="feedback-details-submit" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-6 rounded-lg shadow transition">Submit</button>
+                </div>
+                <p id="feedback-thanks" class="hidden text-center font-bold text-green-600">Thanks for the feedback! We'll take this into consideration for future scoring at this spot.</p>
             </div>
             <div id="teaser-container" class="hidden">
                 <h2 class="text-2xl font-bold text-white mb-3">Teaser</h2>
@@ -349,11 +394,32 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-3">Chat with the Surf Buddy</h2>
                 <div id="chat-messages"></div>
                 <div class="chat-input-area">
-                    <input type="text" id="chatInput" placeholder="Ask about the surf...">
-                    <button id="chatSendButton">Send</button>
+                    <input type="text" id="chatInput" placeholder="Ask about the surf..." aria-label="Chat input" tabindex="0">
+                    <button id="chatSendButton" aria-label="Send chat message" tabindex="0">Send</button>
                 </div>
             </div>
         </div>
+        <!-- Community Feed Section -->
+        <div id="community-feed" class="mt-10 p-6 bg-blue-50 rounded-2xl shadow-inner border border-blue-200 hidden">
+            <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 justify-center text-black">
+                <svg class="w-7 h-7 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2h2M15 3h-6a2 2 0 00-2 2v3a2 2 0 002 2h6a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
+                Community Feed
+            </h2>
+            <div class="mb-6 flex flex-col gap-2" id="community-post-area">
+                <input id="community-post-input" type="text" placeholder="Share your surf experience..." class="w-full max-w-md px-4 py-2 rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                <button id="community-post-btn" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition">Post</button>
+            </div>
+            <ul class="space-y-5" id="community-comments-list" style="width: 100%; max-width: 500px; margin: 0 auto;">
+                <!-- Comments will be injected here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Interactive Map Overlay -->
+    <div id="interactiveMapOverlay" class="fixed inset-0 z-50 bg-white bg-opacity-95 flex flex-col items-center justify-center hidden">
+        <button id="closeMapButton" class="absolute top-6 right-8 bg-blue-600 text-white rounded-full px-4 py-2 font-bold shadow hover:bg-blue-700">Close Map</button>
+        <div id="maplibreMap" style="width: 90vw; height: 80vh; max-width: 900px; max-height: 90vh; min-height: 500px; border-radius: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,0.18);"></div>
+        <div id="mapForecastPopup" class="absolute left-1/2 top-20 transform -translate-x-1/2 bg-white border border-blue-200 rounded-xl shadow-lg p-5 min-w-[300px] hidden" style="z-index:60;"></div>
     </div>
 
     <script>
@@ -366,38 +432,43 @@
         let currentSpotName = '';
 
         const NJ_SURF_SPOTS = [
-            { name: "Manasquan Inlet", lat: 40.1130, lon: -74.0410, camId: "71unjYWqD7A" },
-            { name: "Belmar - 16th Ave", lat: 40.1760, lon: -74.0150, camId: "oetWk6Y14H4" },
-            { name: "Asbury Park", lat: 40.2229, lon: -74.0102, camId: "ZOvkUjiUL7I" },
-            { name: "Long Branch", lat: 40.2930, lon: -73.9900, camId: "6lpYssVuTRQ" },
-            { name: "Seaside Heights / Casino Pier", lat: 39.9400, lon: -74.0700, camId: "oL7IPIbaGi8" },
-            { name: "Surf City", lat: 39.6596, lon: -74.1708, camId: "UzjrgjYz7bI" },
-            { name: "Atlantic City", lat: 39.3643, lon: -74.4229, camId: "Z5zpR-eFTbs" },
-            { name: "Ocean City", lat: 39.2780, lon: -74.5770, camId: "lrhWDrz8Mc8" },
-            { name: "Cape May (Broadway Beach)", lat: 38.9300, lon: -74.9100, camId: "YNTnKXA2nKU" },
-            { name: "Long Beach Island (LBI)", lat: 39.6900, lon: -74.1000, camId: "WZ5isqHBkSo" }
+            { name: "Manasquan Inlet", lat: 40.1130, lon: -74.0410, camId: "71unjYWqD7A", parking: "Metered street parking nearby. Can fill up early on weekends." },
+            { name: "Belmar - 16th Ave", lat: 40.1760, lon: -74.0150, camId: "oetWk6Y14H4", parking: "Free street parking, but limited. Some paid lots in summer." },
+            { name: "Asbury Park", lat: 40.2229, lon: -74.0102, camId: "ZOvkUjiUL7I", parking: "Metered street parking and paid lots. Can be crowded on weekends." },
+            { name: "Long Branch", lat: 40.2930, lon: -73.9900, camId: "6lpYssVuTRQ", parking: "Paid lots and metered street parking. Free parking several blocks inland." },
+            { name: "Seaside Heights / Casino Pier", lat: 39.9400, lon: -74.0700, camId: "oL7IPIbaGi8", parking: "Paid lots and metered parking near the boardwalk." },
+            { name: "Surf City", lat: 39.6596, lon: -74.1708, camId: "UzjrgjYz7bI", parking: "Free street parking, but fills up quickly in summer." },
+            { name: "Atlantic City", lat: 39.3643, lon: -74.4229, camId: "Z5zpR-eFTbs", parking: "Plenty of paid lots and garages near the boardwalk." },
+            { name: "Ocean City", lat: 39.2780, lon: -74.5770, camId: "lrhWDrz8Mc8", parking: "Metered street parking and paid lots. Free parking further from the beach." },
+            { name: "Cape May (Broadway Beach)", lat: 38.9300, lon: -74.9100, camId: "YNTnKXA2nKU", parking: "Metered parking near the beach. Free parking several blocks away." },
+            { name: "Long Beach Island (LBI)", lat: 39.6900, lon: -74.1000, camId: "WZ5isqHBkSo", parking: "Free street parking, but limited near popular peaks." }
         ];
 
         function metersToFeet(meters) { return meters * 3.28084; }
         function celsiusToFahrenheit(celsius) { return (celsius * 9 / 5) + 32; }
 
-        function interpretWaveHeight(waveHeightMeters, swellPeriodSeconds) {
+        function recommendBoard(waveHeightFeet) {
+            if (waveHeightFeet < 2) return "Beacon (9'6)";
+            if (waveHeightFeet < 3) return "Puddle Jumper (5'8)";
+            if (waveHeightFeet < 4) return "Seaside & Beyond (7')";
+            if (waveHeightFeet < 6) return "Spitfire (6'4)";
+            return "Spitfire (6'4)";
+        }
+
+        function interpretWaveHeight(waveHeightMeters, swellPeriodSeconds, userName = 'you') {
             const waveHeightFeet = metersToFeet(waveHeightMeters).toFixed(1);
+            const board = recommendBoard(Number(waveHeightFeet));
             let heightDescription;
-            let boardRecommendation = '';
+            let boardRecommendation = `Based on your previous sessions in similar conditions, you will likely have fun today if you take out your ${board} and wear your 2mm springsuit.`;
 
             if (waveHeightMeters < 0.5) {
                 heightDescription = `It's looking pretty flat right now (${waveHeightFeet} ft). Not much to ride.`;
-                boardRecommendation = "Maybe a good day for a paddleboard."
             } else if (waveHeightMeters < 1.5) {
                 heightDescription = `Fun, manageable waves around ${waveHeightFeet} ft.`;
-                boardRecommendation = "Looks like a great day for a longboard or a fish."
             } else if (waveHeightMeters < 2.5) {
                 heightDescription = `Solid surf hitting about ${waveHeightFeet} ft.`;
-                boardRecommendation = "Your standard shortboard should be perfect for this."
             } else {
                 heightDescription = `Big, challenging waves at ${waveHeightFeet} ft.`;
-                boardRecommendation = "This is step-up or gun territory for experienced surfers only."
             }
 
             let periodDescription = '';
@@ -406,7 +477,10 @@
                 else if (swellPeriodSeconds < 10) periodDescription = `With a decent ${swellPeriodSeconds.toFixed(0)}s swell period, the waves should have some push.`;
                 else periodDescription = `The long ${swellPeriodSeconds.toFixed(0)}s swell period is generating some powerful, quality groundswell.`;
             }
-            return `${heightDescription} ${periodDescription} ${boardRecommendation}`;
+            let desc = `${heightDescription}`;
+            if (periodDescription) desc += ' ' + periodDescription;
+            desc += ' ' + boardRecommendation;
+            return desc.trim();
         }
 
         function interpretWind(windSpeedMetersPerSec, windDirectionDegrees) {
@@ -631,19 +705,32 @@
             else if (tideStatus === 'Falling Tide') tideStatusArrow.style.transform = 'rotate(180deg)';
             else tideStatusArrow.style.transform = 'rotate(90deg)';
 
-            let nextTideEvent = hiloData?.find(event => new Date(event.time) > now);
-            if (nextTideInfoElement) {
-                if (nextTideEvent && nextTideEvent.state && typeof nextTideEvent.height === 'number') {
+            if (nextTideInfoElement && Array.isArray(hiloData) && hiloData.length > 0) {
+                // Debug log
+                console.log('hiloData:', hiloData);
+                console.log('now:', now.toISOString());
+                // Sort events by time ascending
+                const sortedHilo = hiloData.slice().sort((a, b) => new Date(a.time) - new Date(b.time));
+                const nowMs = now.getTime();
+                const nextTideEvent = sortedHilo.find(event => new Date(event.time).getTime() > nowMs);
+                if (nextTideEvent && nextTideEvent.type && typeof nextTideEvent.height === 'number') {
                     const timeString = new Date(nextTideEvent.time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-                    const heightString = metersToFeet(nextTideEvent.height).toFixed(1);
-                    nextTideInfoElement.textContent = `Next ${nextTideEvent.state} tide is ${heightString}ft at ${timeString}.`;
+                    nextTideInfoElement.textContent = `Next ${nextTideEvent.type} tide is at ${timeString}.`;
+                } else {
+                    // Fallback: show soonest event for debugging
+                    if (sortedHilo.length > 0) {
+                        const soonest = sortedHilo[0];
+                        const timeString = new Date(soonest.time).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                        const heightString = metersToFeet(soonest.height).toFixed(1);
+                        nextTideInfoElement.textContent = `[Debug] Soonest: ${soonest.type} tide is ${heightString}ft at ${timeString}.`;
                 } else {
                     nextTideInfoElement.textContent = 'No more tide events scheduled in the next 48 hours.';
+                    }
                 }
             }
         }
 
-        function drawTideChart(hourlyData) {
+        function drawTideChart(hourlyData, currentTime) {
              const tideChartCanvas = document.getElementById('tideChartCanvas');
              const tideChartCtx = tideChartCanvas.getContext('2d');
              if (!tideChartCanvas || !tideChartCtx) return;
@@ -653,6 +740,11 @@
             const labels = hourlyData.map(d => new Date(d.time));
             const data = hourlyData.map(d => metersToFeet(d.sg));
 
+            // Create gradient for tide chart
+            const gradient = tideChartCtx.createLinearGradient(0, 0, 0, tideChartCanvas.height);
+            gradient.addColorStop(0, '#38bdf8'); // blue
+            gradient.addColorStop(1, '#a5b4fc'); // purple
+
             tideChartInstance = new Chart(tideChartCtx, {
                 type: 'line',
                 data: {
@@ -660,40 +752,65 @@
                     datasets: [{
                         label: 'Tide Height (ft)',
                         data: data,
-                        borderColor: '#0ea5e9',
-                        backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                        borderColor: '#6366f1',
+                        backgroundColor: gradient,
                         fill: true,
-                        tension: 0.4
+                        tension: 0.45,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 8,
+                        pointHoverBackgroundColor: '#38bdf8',
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 4,
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(99,102,241,0.2)'
                     }]
                 },
                 options: {
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'hour',
-                                displayFormats: { hour: 'ha' }
-                            },
-                            title: { display: true, text: 'Time'},
-                            grid: { display: false }
-                        },
-                        y: {
-                            title: { display: true, text: 'Tide Height (ft)'},
-                            beginAtZero: false
-                        }
-                    },
                     plugins: {
                         legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#18181b',
+                            titleColor: '#38bdf8',
+                            bodyColor: '#fff',
+                            borderColor: '#6366f1',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: ctx => ` ${ctx.parsed.y.toFixed(2)} ft`
+                            }
+                        },
                         annotation: {
                             annotations: {
+                                ...(currentTime ? {
                                 currentTimeLine: {
                                     type: 'line',
                                     scaleID: 'x',
-                                    value: new Date(),
-                                    borderColor: 'red',
-                                    borderWidth: 2
-                                }
+                                        value: currentTime,
+                                        borderColor: '#f59e42',
+                                        borderWidth: 2,
+                                        borderDash: [6, 6]
+                                    }
+                                } : {})
                             }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'hour', displayFormats: { hour: 'ha' } },
+                            title: { display: true, text: 'Time', color: '#334155', font: { size: 16, weight: 'bold', family: 'Inter' } },
+                            grid: { display: false },
+                            ticks: { color: '#334155', font: { size: 14, family: 'Inter' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Tide Height (ft)', color: '#334155', font: { size: 16, weight: 'bold', family: 'Inter' } },
+                            beginAtZero: false,
+                            grid: { display: false },
+                            ticks: { color: '#334155', font: { size: 14, family: 'Inter' } }
                         }
                     }
                 }
@@ -706,7 +823,7 @@
             return new Chart(ctx, chartConfig);
         }
 
-        function drawHourlyCharts(hourlyData) {
+        function drawHourlyCharts(hourlyData, currentTime) {
             const now = new Date();
             const futureData = hourlyData.filter(h => new Date(h.time) >= now);
             const labels = hourlyData.map(h => new Date(h.time));
@@ -737,31 +854,239 @@
             partlyCloudyIcon.src = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M12 2v2"></path><path d="M12 18v2"></path><path d="M4.93 4.93l1.41 1.41"></path><path d="M17.66 17.66l1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="M6.34 17.66l-1.41 1.41"></path><path d="M19.07 4.93l-1.41 1.41"></path></svg>');
             const cloudyIcon = new Image(20, 20);
             cloudyIcon.src = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10A8 8 0 1 0 6 18h12a5 5 0 0 0 0-10z"></path></svg>');
-            const windArrowIcon = new Image(15,15);
+            // Wind arrow icon as a function to rotate
+            function createWindArrowIcon(degrees) {
+                const size = 24;
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.save();
+                ctx.translate(size/2, size/2);
+                ctx.rotate((degrees-180) * Math.PI / 180); // -180 so arrow points to where wind is going
+                ctx.translate(-size/2, -size/2);
+                ctx.drawImage(windArrowIcon, 0, 0, size, size);
+                ctx.restore();
+                const img = new Image(size, size);
+                img.src = canvas.toDataURL();
+                return img;
+            }
+            const windArrowIcon = new Image(24,24);
             windArrowIcon.src = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#3b82f6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>');
 
             waveHeightChart = createOrUpdateChart(waveHeightChart, 'waveHeightChartCanvas', {
                 type: 'bar',
-                data: { labels, datasets: [{ label: 'Wave Height (ft)', data: hourlyData.map(h => metersToFeet(h.waveHeight.sg)), backgroundColor: '#60a5fa' }] },
-                options: { scales: { x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'ha' } } } } },
-                plugins: [annotationPlugin]
+                data: { labels, datasets: [{ label: 'Wave Height (ft)', data: hourlyData.map(h => metersToFeet(h.waveHeight.sg)), backgroundColor: function(ctx) {
+                    const chart = ctx.chart;
+                    const {ctx: c, chartArea} = chart;
+                    if (!chartArea) return '#38bdf8';
+                    const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    gradient.addColorStop(0, '#38bdf8');
+                    gradient.addColorStop(1, '#06b6d4');
+                    return gradient;
+                }, borderRadius: 8, borderSkipped: false, barPercentage: 0.7, categoryPercentage: 0.7, shadowOffsetX: 0, shadowOffsetY: 4, shadowBlur: 10, shadowColor: 'rgba(6,182,212,0.15)' }] },
+                options: {
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#18181b',
+                            titleColor: '#38bdf8',
+                            bodyColor: '#fff',
+                            borderColor: '#06b6d4',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: ctx => ` ${ctx.parsed.y.toFixed(2)} ft`
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                ...(currentTime ? {
+                                    currentTimeLine: {
+                                        type: 'line',
+                                        scaleID: 'x',
+                                        value: currentTime,
+                                        borderColor: '#f59e42',
+                                        borderWidth: 2,
+                                        borderDash: [6, 6]
+                                    }
+                                } : {})
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'hour', displayFormats: { hour: 'ha' } },
+                            title: { display: true, text: 'Time', color: '#334155', font: { size: 16, weight: 'bold', family: 'Inter' } },
+                            grid: { display: false },
+                            ticks: { color: '#334155', font: { size: 14, family: 'Inter' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Wave Height (ft)', color: '#334155', font: { size: 16, weight: 'bold', family: 'Inter' } },
+                            beginAtZero: true,
+                            grid: { display: false },
+                            ticks: { color: '#334155', font: { size: 14, family: 'Inter' } }
+                        }
+                    }
+                }
             });
             periodChart = createOrUpdateChart(periodChart, 'periodChartCanvas', {
                 type: 'line',
-                data: { labels, datasets: [{ label: 'Swell Period (s)', data: hourlyData.map(h => h.swellPeriod.sg), borderColor: '#16a34a', tension: 0.1 }] },
-                options: { scales: { x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'ha' } } } } },
-                plugins: [annotationPlugin]
+                data: { labels, datasets: [{ label: 'Swell Period (s)', data: hourlyData.map(h => h.swellPeriod.sg), borderColor: '#a21caf', backgroundColor: function(ctx) {
+                    const chart = ctx.chart;
+                    const {ctx: c, chartArea} = chart;
+                    if (!chartArea) return '#a21caf';
+                    const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    gradient.addColorStop(0, '#a21caf');
+                    gradient.addColorStop(1, '#f472b6');
+                    return gradient;
+                }, fill: true, tension: 0.45, pointRadius: 5, pointBackgroundColor: '#a21caf', pointHoverRadius: 8, pointHoverBackgroundColor: '#f472b6', borderWidth: 4, shadowOffsetX: 0, shadowOffsetY: 4, shadowBlur: 10, shadowColor: 'rgba(162,28,175,0.15)' }] },
+                options: {
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#18181b',
+                            titleColor: '#a21caf',
+                            bodyColor: '#fff',
+                            borderColor: '#f472b6',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: ctx => ` ${ctx.parsed.y.toFixed(2)} s`
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                ...(currentTime ? {
+                                    currentTimeLine: {
+                                        type: 'line',
+                                        scaleID: 'x',
+                                        value: currentTime,
+                                        borderColor: '#f59e42',
+                                        borderWidth: 2,
+                                        borderDash: [6, 6]
+                                    }
+                                } : {})
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'hour', displayFormats: { hour: 'ha' } },
+                            title: { display: true, text: 'Time', color: '#334155', font: { size: 16, weight: 'bold', family: 'Inter' } },
+                            grid: { display: false },
+                            ticks: { color: '#334155', font: { size: 14, family: 'Inter' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Swell Period (s)', color: '#334155', font: { size: 16, weight: 'bold', family: 'Inter' } },
+                            beginAtZero: true,
+                            grid: { display: false },
+                            ticks: { color: '#334155', font: { size: 14, family: 'Inter' } }
+                        }
+                    }
+                }
             });
             windChart = createOrUpdateChart(windChart, 'windChartCanvas', {
                 type: 'line',
-                data: { labels, datasets: [{ label: 'Wind Speed (knots)', data: hourlyData.map(h => h.windSpeed.sg * 1.94384), borderColor: '#ef4444', yAxisID: 'y' }] },
-                options: { scales: { x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'ha' } } }, y: { beginAtZero: true } } },
-                plugins: [annotationPlugin]
+                data: { labels, datasets: [{ label: 'Wind Speed (knots)', data: hourlyData.map(h => h.windSpeed.sg * 1.94384), borderColor: '#0ea5e9', backgroundColor: function(ctx) {
+                    const chart = ctx.chart;
+                    const {ctx: c, chartArea} = chart;
+                    if (!chartArea) return '#0ea5e9';
+                    const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    gradient.addColorStop(0, '#0ea5e9');
+                    gradient.addColorStop(1, '#38bdf8');
+                    return gradient;
+                }, fill: true, tension: 0.45, pointRadius: 5, pointBackgroundColor: '#0ea5e9', pointHoverRadius: 8, pointHoverBackgroundColor: '#38bdf8', borderWidth: 4, shadowOffsetX: 0, shadowOffsetY: 4, shadowBlur: 10, shadowColor: 'rgba(14,165,233,0.15)' }] },
+                options: {
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#18181b',
+                            titleColor: '#0ea5e9',
+                            bodyColor: '#fff',
+                            borderColor: '#38bdf8',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            callbacks: {
+                                label: ctx => ` ${ctx.parsed.y.toFixed(2)} knots`
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                ...(currentTime ? {
+                                    currentTimeLine: {
+                                        type: 'line',
+                                        scaleID: 'x',
+                                        value: currentTime,
+                                        borderColor: '#f59e42',
+                                        borderWidth: 2,
+                                        borderDash: [6, 6]
+                                    }
+                                } : {})
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'hour', displayFormats: { hour: 'ha' } },
+                            // min: now, // Allow full day
+                            title: { display: true, text: 'Time', color: '#334155', font: { size: 16, weight: 'bold', family: 'Inter' } },
+                            grid: { display: false },
+                            ticks: { color: '#334155', font: { size: 14, family: 'Inter' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Wind Speed (knots)', color: '#334155', font: { size: 16, weight: 'bold', family: 'Inter' } },
+                            beginAtZero: true,
+                            grid: { display: false },
+                            ticks: { color: '#334155', font: { size: 14, family: 'Inter' } }
+                        }
+                    }
+                }
             });
+            // Wind direction chart as arrows
              windDirectionChart = createOrUpdateChart(windDirectionChart, 'windDirectionChartCanvas', {
+                type: 'scatter',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Wind Direction',
+                        data: hourlyData.map(h => ({x: new Date(h.time), y: 180})), // y=180 for vertical center
+                        pointStyle: hourlyData.map(h => createWindArrowIcon(h.windDirection.sg)),
+                        pointRadius: 15,
+                        showLine: false,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'ha' } }, min: now, grid: { display: false } },
+                        y: { display: false, min: 0, max: 360, grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        annotation: {
+                            annotations: {
+                                ...(currentTime ? {
+                                    currentTimeLine: {
                 type: 'line',
-                data: { labels, datasets: [{ label: 'Wind Direction (°)', data: hourlyData.map(h => h.windDirection.sg), borderColor: '#f59e0b', tension: 0.1 }] },
-                options: { scales: { x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'ha' } } }, y: { min: 0, max: 360 } } },
+                                        scaleID: 'x',
+                                        value: currentTime,
+                                        borderColor: 'red',
+                                        borderWidth: 2
+                                    }
+                                } : {})
+                            }
+                        }
+                    }
+                },
                 plugins: [annotationPlugin]
             });
             weatherChart = createOrUpdateChart(weatherChart, 'weatherChartCanvas', {
@@ -784,20 +1109,22 @@
                 },
                 options: {
                     scales: {
-                        x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'ha' } }, min: now },
-                        y: { display: false, min: 0, max: 20 }
+                        x: { type: 'time', time: { unit: 'hour', displayFormats: { hour: 'ha' } }, min: now, grid: { display: false } },
+                        y: { display: false, min: 0, max: 20, grid: { display: false } }
                     },
                     plugins: {
                         legend: { display: false },
                         annotation: {
                             annotations: {
+                                ...(currentTime ? {
                                 currentTimeLine: {
                                     type: 'line',
                                     scaleID: 'x',
-                                    value: new Date(),
+                                        value: currentTime,
                                     borderColor: 'red',
                                     borderWidth: 2
                                 }
+                                } : {})
                             }
                         },
                         datalabels: {
@@ -841,11 +1168,13 @@
 
             try {
                 const now = new Date();
+                // Always use current date for startDate
                 const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                // End date is 5 days ahead (max for Stormglass free tier)
                 const weatherEndDate = new Date(startDate.getTime() + 5 * 24 * 60 * 60 * 1000);
                 const params = `waveHeight,swellDirection,swellPeriod,windDirection,windSpeed,waterTemperature,airTemperature,cloudCover`;
                 const weatherApiUrl = `https://api.stormglass.io/v2/weather/point?lat=${lat}&lng=${lon}&start=${startDate.toISOString()}&end=${weatherEndDate.toISOString()}&params=${params}`;
-                const weatherResponse = await fetch(weatherApiUrl, { headers: { 'Authorization': STORMGLASS_API_KEY } });
+                const weatherResponse = await fetch(`http://localhost:4000/api/stormglass?url=${encodeURIComponent(weatherApiUrl)}`);
                 if (!weatherResponse.ok) throw new Error('Failed to fetch weather data');
                 const weatherData = await weatherResponse.json();
                 allForecastHours = weatherData.hours;
@@ -857,7 +1186,15 @@
                     const score = determineSurfConditions(waveHeight.sg, swellPeriod.sg, windSpeed.sg, windDirection.sg);
                     updateSurfScoreVisual(score);
 
-                    forecastText.textContent = interpretWaveHeight(waveHeight.sg, swellPeriod.sg) + " " + interpretWind(windSpeed.sg, windDirection.sg);
+                    const baseDesc = interpretWaveHeight(waveHeight.sg, swellPeriod.sg);
+                    const windDesc = interpretWind(windSpeed.sg, windDirection.sg);
+                    // Extract the personalized message from interpretWaveHeight
+                    const board = recommendBoard(Number(metersToFeet(waveHeight.sg).toFixed(1)));
+                    const personalizedMsg = `Based on your previous sessions in similar conditions, you will likely have fun today if you take out your ${board} and wear your 2mm springsuit.`;
+                    // Remove the personalized message from baseDesc if present
+                    let mainDesc = baseDesc.replace(personalizedMsg, '').trim();
+                    if (mainDesc.endsWith('.')) mainDesc = mainDesc.slice(0, -1);
+                    forecastText.textContent = `${mainDesc}. ${windDesc} ${personalizedMsg}`.replace(/\s+/g, ' ').trim();
                     forecastLocation.textContent = locationName;
 
                     updateWaveVisualization(waveHeight.sg);
@@ -872,17 +1209,20 @@
                     document.getElementById('clean-score-value').textContent = cleanScore.toFixed(0);
                     document.getElementById('size-score-value').textContent = sizeScore.toFixed(0);
 
-                    currentDisplayDate = new Date();
+                    // Always set currentDisplayDate to today on initial load
+                    const today = new Date();
+                    currentDisplayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                     displayHourlyDataForDate(currentDisplayDate);
                 }
 
+                // Tide data: 6 days ahead max
                 const tideEndDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000);
                 const tideParams = `lat=${lat}&lng=${lon}&start=${startDate.toISOString()}&end=${tideEndDate.toISOString()}`;
                 const tideHourlyUrl = `https://api.stormglass.io/v2/tide/sea-level/point?${tideParams}`;
                 const tideHiloUrl = `https://api.stormglass.io/v2/tide/extremes/point?${tideParams}`;
                 const [tideHourlyResponse, tideHiloResponse] = await Promise.all([
-                    fetch(tideHourlyUrl, { headers: { 'Authorization': STORMGLASS_API_KEY } }),
-                    fetch(tideHiloUrl, { headers: { 'Authorization': STORMGLASS_API_KEY } })
+                    fetch(`http://localhost:4000/api/stormglass?url=${encodeURIComponent(tideHourlyUrl)}`),
+                    fetch(`http://localhost:4000/api/stormglass?url=${encodeURIComponent(tideHiloUrl)}`)
                 ]);
                 if (!tideHourlyResponse.ok || !tideHiloResponse.ok) throw new Error('Failed to fetch tide data');
                 const hourlyTideData = await tideHourlyResponse.json();
@@ -892,6 +1232,8 @@
                     if (tideChartInterval) clearInterval(tideChartInterval);
                     updateCurrentTideIndicator();
                     tideChartInterval = setInterval(updateCurrentTideIndicator, 60000);
+                    // Fix: ensure tide chart is drawn after tide data is loaded
+                    displayHourlyDataForDate(currentDisplayDate);
                 }
             } catch (error) {
                 console.error('Error in getSurfForecast:', error);
@@ -899,6 +1241,7 @@
             } finally {
                 loadingIndicator.style.display = 'none';
                 resultContainer.classList.remove('hidden');
+                document.getElementById('community-feed').classList.remove('hidden');
             }
         }
 
@@ -914,15 +1257,31 @@
             }
         }
 
+        function getCurrentTimeInEST() {
+            // Get the current time in America/New_York as a Date object
+            const now = new Date();
+            const estString = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+            return new Date(estString);
+        }
+
         function displayHourlyDataForDate(date) {
             const filteredData = allForecastHours.filter(h => new Date(h.time).toDateString() === date.toDateString());
             document.getElementById('hourly-forecast-date').textContent = date.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-            drawHourlyCharts(filteredData);
 
-            const filteredTideData = allTideData.hourly.filter(h => new Date(h.time).toDateString() === date.toDateString());
-            drawTideChart(filteredTideData);
-
+            // Determine if the selected date is today (in local time)
             const today = new Date();
+            const isToday = date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate();
+            const currentTime = isToday ? getCurrentTimeInEST() : null;
+
+            drawHourlyCharts(filteredData, currentTime);
+
+            // Only show tide data for the selected day (today by default), comparing in local time
+            const filteredTideData = allTideData.hourly.filter(h => {
+                const t = new Date(h.time);
+                return t.getFullYear() === date.getFullYear() && t.getMonth() === date.getMonth() && t.getDate() === date.getDate();
+            });
+            drawTideChart(filteredTideData, currentTime);
+
             document.getElementById('prevDayButton').disabled = date.toDateString() === today.toDateString();
         }
 
@@ -948,6 +1307,7 @@
                     if (njSpotsDropdown.value) {
                         const spot = JSON.parse(njSpotsDropdown.value);
                         getSurfForecast(spot.lat, spot.lon, spot.name);
+                        currentSpotName = spot.name; // Fix: update currentSpotName for chat context
                         feedbackContainer.classList.remove('hidden');
                         feedbackInitial.classList.remove('hidden');
                         feedbackRating.classList.add('hidden');
@@ -966,26 +1326,51 @@
                 displayHourlyDataForDate(currentDisplayDate);
             });
 
+            const feedbackBoard = document.getElementById('feedback-board');
+            const boardSelect = document.getElementById('board-select');
+            const boardSelectNext = document.getElementById('board-select-next');
+
             feedbackYesButton.addEventListener('click', () => {
                 feedbackInitial.classList.add('hidden');
-                feedbackRating.classList.remove('hidden');
+                feedbackBoard.classList.remove('hidden');
+            });
+
+            boardSelectNext.addEventListener('click', () => {
+                if (boardSelect.value) {
+                    feedbackBoard.classList.add('hidden');
+                    feedbackRating.classList.remove('hidden');
+                } else {
+                    boardSelect.classList.add('border-red-500');
+                }
             });
 
             feedbackNoButton.addEventListener('click', () => {
                 feedbackContainer.classList.add('hidden');
             });
 
+            const feedbackDetails = document.getElementById('feedback-details');
+            const feedbackDetailsInput = document.getElementById('feedback-details-input');
+            const feedbackDetailsSubmit = document.getElementById('feedback-details-submit');
+
             stars.forEach(star => {
                 star.addEventListener('click', () => {
                     feedbackRating.classList.add('hidden');
-                    feedbackThanks.classList.remove('hidden');
+                    feedbackDetails.classList.remove('hidden');
                 });
+            });
+
+            feedbackDetailsSubmit.addEventListener('click', () => {
+                feedbackDetails.classList.add('hidden');
+                feedbackThanks.classList.remove('hidden');
+                // Optionally, you could collect feedbackDetailsInput.value here
             });
 
             chatSendButton.addEventListener('click', handleChatMessage);
             chatInput.addEventListener('keypress', (e) => {
                 if(e.key === 'Enter') handleChatMessage();
             });
+
+            renderCommunityFeed();
         });
 
         async function handleChatMessage() {
@@ -1002,35 +1387,129 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
                 const waterTemp = document.getElementById('waterTempVisualText').textContent;
-                const prompt = `You are a surf forecasting expert. Keep your responses very short and to the point. Do not use any markdown formatting or asterisks. Based on the following data for ${currentSpotName}, answer the user's question: "${userMessage}". Forecast data: ${document.getElementById('forecast-text').textContent}. The water temperature is ${waterTemp}.`;
-
-                let chatHistory = [];
-                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-                const payload = { contents: chatHistory };
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const forecastText = document.getElementById('forecast-text').textContent;
+                let parkingInfo = '';
+                if (/parking/i.test(userMessage)) {
+                    const selectedSpot = NJ_SURF_SPOTS.find(spot => spot.name === currentSpotName);
+                    if (selectedSpot && selectedSpot.parking) {
+                        parkingInfo = `Parking info for ${selectedSpot.name}: ${selectedSpot.parking}`;
+                    }
+                }
+                const prompt = `You are a surf forecasting expert. Keep your responses very short and to the point. Do not use any markdown formatting or asterisks. Based on the following data for ${currentSpotName}, answer the user's question: "${userMessage}". Forecast data: ${forecastText}. The water temperature is ${waterTemp}. ${parkingInfo}`;
 
                 try {
-                    const response = await fetch(apiUrl, {
+                    // Call backend /rag endpoint to handle RAG logic
+                    const ragResponse = await fetch('http://localhost:4000/rag', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({ question: userMessage, fallbackPrompt: prompt })
                     });
-                    const result = await response.json();
-                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
+                    const result = await ragResponse.json();
+                    if (result && result.response) {
                         const aiMessageDiv = document.createElement('div');
                         aiMessageDiv.className = 'chat-message ai';
-                        aiMessageDiv.textContent = text;
+                        aiMessageDiv.textContent = result.response.trim();
+                        chatMessages.appendChild(aiMessageDiv);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    } else {
+                        const aiMessageDiv = document.createElement('div');
+                        aiMessageDiv.className = 'chat-message ai';
+                        aiMessageDiv.textContent = 'Sorry, I could not get a response from the local AI.';
                         chatMessages.appendChild(aiMessageDiv);
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     }
                 } catch(error) {
-                    console.error("Error calling Gemini API:", error);
+                    console.error("Error calling RAG backend:", error);
+                    const aiMessageDiv = document.createElement('div');
+                    aiMessageDiv.className = 'chat-message ai';
+                    aiMessageDiv.textContent = 'Sorry, there was an error connecting to the local AI.';
+                    chatMessages.appendChild(aiMessageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
             }
         }
 
+        // Sidebar menu logic
+        const menuToggleButton = document.getElementById('menuToggleButton');
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        const closeMenuButton = document.getElementById('closeMenuButton');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        let menuOpen = false;
+        function openMenu() {
+            sidebarMenu.classList.remove('-translate-x-full');
+            sidebarMenu.classList.add('translate-x-0');
+            sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
+            sidebarOverlay.classList.add('opacity-100');
+            menuOpen = true;
+        }
+        function closeMenu() {
+            sidebarMenu.classList.add('-translate-x-full');
+            sidebarMenu.classList.remove('translate-x-0');
+            sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
+            sidebarOverlay.classList.remove('opacity-100');
+            menuOpen = false;
+        }
+        function toggleMenu() {
+            if (menuOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        }
+        menuToggleButton.addEventListener('click', toggleMenu);
+        closeMenuButton.addEventListener('click', closeMenu);
+        sidebarOverlay.addEventListener('click', closeMenu);
+        document.addEventListener('keydown', (e) => {
+            if (menuOpen && e.key === 'Escape') closeMenu();
+        });
+
+        // Community Feed: Fake comments
+        const fakeComments = [
+          {
+            user: "@surfNJ",
+            spot: "Belmar - 16th Ave",
+            time: "10 min ago",
+            text: "Super fun waist-high sets this morning, glassy and clean! Bring your longboard."
+          },
+          {
+            user: "@wavehunter",
+            spot: "Manasquan Inlet",
+            time: "30 min ago",
+            text: "Wind picked up, a little choppy now but still rideable."
+          },
+          {
+            user: "@kellyfan",
+            spot: "Seaside Heights / Casino Pier",
+            time: "1 hr ago",
+            text: "Caught a couple of nice lefts, crowd was mellow. Water's warming up!"
+          },
+          {
+            user: "@lbi_local",
+            spot: "Long Beach Island (LBI)",
+            time: "2 hrs ago",
+            text: "Tide dropping, waves getting punchier. Watch out for the shorebreak."
+          },
+          {
+            user: "@ocnjgrom",
+            spot: "Ocean City",
+            time: "3 hrs ago",
+            text: "Small but super clean. Perfect for a foamie session."
+          }
+        ];
+        function renderCommunityFeed() {
+          const list = document.getElementById('community-comments-list');
+          if (!list) return;
+          list.innerHTML = fakeComments.map(comment => `
+    <li class="bg-white rounded-xl p-4 shadow flex flex-col gap-1 border border-blue-100 text-black text-left">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="font-semibold text-blue-600">${comment.user}</span>
+        <span class="text-xs text-gray-400">${comment.time}</span>
+        <span class="ml-auto text-xs text-blue-400 font-semibold">${comment.spot}</span>
+      </div>
+      <div class="text-black text-base">${comment.text}</div>
+    </li>
+  `).join('');
+        }
     </script>
 </body>
 </html>
